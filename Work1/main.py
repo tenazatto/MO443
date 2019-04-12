@@ -15,7 +15,7 @@ parser.add_argument('-freq-band', type=int, dest='freq_bandwidth')
 
 def apply_spatial_domain_filter(images, spat):
     for image in images:
-        cvImage = cv2.imread(image)
+        cvImage = cv2.imread(image, 0)
         filteredImage = SpatialDomainFilter.applyFilter(cvImage, spat)
 
         imagePaths = image.split('/')
