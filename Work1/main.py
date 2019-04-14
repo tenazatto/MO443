@@ -1,5 +1,6 @@
 import argparse
 import os
+import time
 
 import cv2
 
@@ -8,42 +9,77 @@ from spatial.spatial_domain import SpatialDomainFilter
 
 parser = argparse.ArgumentParser(description='MO443A Work 1')
 parser.add_argument('-images', nargs='+', dest='images', required=True)
-parser.add_argument('-spat', type=int, dest='spat')
+parser.add_argument('-spat-filter', type=int, dest='spat_filter')
+parser.add_argument('-spat-heatmap', dest='spat_heatmap', action='store_true')
+parser.add_argument('-spat-histogram', dest='spat_histogram', action='store_true')
 parser.add_argument('-freq-type', type=int, dest='freq_type')
 parser.add_argument('-freq-radius', type=int, dest='freq_radius')
 parser.add_argument('-freq-band', type=int, dest='freq_bandwidth')
+parser.add_argument('-freq-gen-aux-images', dest='freq_gen_aux_images', action='store_true')
 
-def apply_spatial_domain_filter(images, spat):
+def apply_spatial_domain_filter(images, spat_filter, spat_heatmap, spat_histogram):
+    print("Applying spatial domain filter " + str(spat_filter))
     for image in images:
-        cvImage = cv2.imread(image, 0)
-        filteredImage = SpatialDomainFilter.applyFilter(cvImage, spat)
+        start_time = time.process_time()
 
         imagePaths = image.split('/')
         imageName = imagePaths[len(imagePaths) - 1]
-        if not os.path.exists('./result_images/spatial'):
-            os.makedirs('./result_images/spatial')
-        cv2.imwrite('./result_images/spatial/' + imageName, filteredImage)
+        filterName = 'filter' + str(spat_filter)
+
+        cvImage = cv2.imread(image, 0)
+
+        filteredImage = SpatialDomainFilter.applyFilter(cvImage, imageName, spat_filter, spat_heatmap, spat_histogram)
+
+        generateImage('./result_images/spatial/' + filterName + '/', imageName, filteredImage)
+
+        print("Execution time for image %s: %s seconds" % (imageName, str(time.process_time() - start_time)))
 
 
-def apply_frequency_domain_filter(images, freq_type, freq_radius, freq_bandwidth):
+def apply_frequency_domain_filter(images, freq_type, freq_radius, freq_bandwidth, freq_gen_aux_images):
+    print("Applying frequency domain filter " + str(freq_type))
     for image in images:
+        start_time = time.process_time()
+
         cvImage = cv2.imread(image, 0)
         imageMask, maskedImage, filteredImage, magnitudeSpectrum = \
             FrequencyDomainFilter.applyFilter(cvImage, freq_type, freq_radius, freq_bandwidth)
 
         imagePaths = image.split('/')
-        imageName = imagePaths[len(imagePaths) - 1]
-        if not os.path.exists('./result_images/frequency'):
-            os.makedirs('./result_images/frequency')
-        cv2.imwrite('./result_images/frequency/' + imageName, imageMask)
+        imageProps = imagePaths[len(imagePaths) - 1].split('.')
+        filterName = 'filter' + str(freq_type)
+
+        if (freq_type > 2):
+            maskName = 'mask_r' + str(freq_radius) + 'b' + str(freq_bandwidth)
+            filteredImageName = imageProps[0] + '_r' + str(freq_radius) + 'b' + str(freq_bandwidth)
+            magnitudeSpectrumName = imageProps[0] + 'Spectrum_r' + str(freq_radius) + 'b' + str(freq_bandwidth)
+        else:
+            maskName = 'mask_r' + str(freq_radius)
+            filteredImageName = imageProps[0] + '_r' + str(freq_radius)
+            magnitudeSpectrumName = imageProps[0] + 'Spectrum_r' + str(freq_radius)
+
+        if (freq_gen_aux_images):
+            generateImage('./result_images/frequency/' + filterName + '/', maskName + '.' + imageProps[1], imageMask)
+            generateImage('./result_images/frequency/' + filterName + '/', magnitudeSpectrumName + '.' + imageProps[1],
+                          magnitudeSpectrum)
+
+        generateImage('./result_images/frequency/' + filterName + '/', filteredImageName + '.' + imageProps[1],
+                      filteredImage)
+
+        print("Execution time for image %s: %s seconds" % (imagePaths[len(imagePaths) - 1], str(time.process_time() - start_time)))
+
+def generateImage(folderPath, fileName, image):
+    if not os.path.exists(folderPath):
+        os.makedirs(folderPath)
+    cv2.imwrite(folderPath + fileName, image)
 
 def main():
     args = parser.parse_args()
 
-    if args.spat != None:
-        apply_spatial_domain_filter(args.images, args.spat)
+    if args.spat_filter != None:
+        apply_spatial_domain_filter(args.images, args.spat_filter, args.spat_heatmap, args.spat_histogram)
     if args.freq_type != None:
-        apply_frequency_domain_filter(args.images, args.freq_type, args.freq_radius, args.freq_bandwidth)
+        apply_frequency_domain_filter(args.images, args.freq_type, args.freq_radius, args.freq_bandwidth,
+                                      args.freq_gen_aux_images)
 
 
 if __name__ == '__main__':
