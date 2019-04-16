@@ -2,27 +2,32 @@ import os
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 
 from skimage.exposure import rescale_intensity
 
 
 class SpatialDomainFilter:
     @staticmethod
-    def applyFilter(image, imageName, spat, heatmap, histogram):
+    def applyFilter(image, imageName, spat, histogram):
         if (spat == 1):
-            return SpatialDomainFilter.applyConvolution(image, imageName, SpatialDomainFilter.filter1(), spat, heatmap, histogram)
+            filteredImage = SpatialDomainFilter.applyConvolution(image, SpatialDomainFilter.filter1())
         elif (spat == 2):
-            return SpatialDomainFilter.applyConvolution(image, imageName, SpatialDomainFilter.filter2(), spat, heatmap, histogram)
+            filteredImage = SpatialDomainFilter.applyConvolution(image, SpatialDomainFilter.filter2())
         elif (spat == 3):
-            return SpatialDomainFilter.applyConvolution(image, imageName, SpatialDomainFilter.filter3(), spat, heatmap, histogram)
+            filteredImage = SpatialDomainFilter.applyConvolution(image, SpatialDomainFilter.filter3())
         elif (spat == 4):
-            return SpatialDomainFilter.applyConvolution(image, imageName, SpatialDomainFilter.filter4(), spat, heatmap, histogram)
+            filteredImage = SpatialDomainFilter.applyConvolution(image, SpatialDomainFilter.filter4())
         elif (spat == 5):
-            return SpatialDomainFilter.applyConvolution(image, imageName, SpatialDomainFilter.filter5(), spat, heatmap, histogram)
+            filteredImage = SpatialDomainFilter.applyCombination(image, SpatialDomainFilter.filter3(),
+                                                        SpatialDomainFilter.filter4())
+
+        if (histogram):
+            SpatialDomainFilter.showHistogram(filteredImage, spat, imageName)
+
+        return filteredImage
 
     @staticmethod
-    def applyConvolution(image, imageName, filter, spat, heatmap, histogram):
+    def applyConvolution(image, filter):
         (iH, iW) = image.shape[:2]
         (kH, kW) = filter.shape[:2]
 
@@ -41,23 +46,22 @@ class SpatialDomainFilter:
 
         filteredImage = rescale_intensity(filteredImage, in_range=(0, 255))
 
-        if (heatmap):
-            SpatialDomainFilter.showIntensity(filteredImage, imageName)
-
         filteredImage = (filteredImage * 255).astype("uint8")
-
-        if (histogram):
-            SpatialDomainFilter.showHistogram(filteredImage, spat, imageName)
 
         return filteredImage
 
     @staticmethod
-    def showIntensity(intensity, imageName):
-        fig, ax = plt.subplots(figsize=(9, 9))
-        sns.heatmap(data=intensity, annot=True, ax=ax)
-        if not os.path.exists('./result_images/spatial/heatmap'):
-            os.makedirs('./result_images/spatial/heatmap')
-        fig.savefig('./result_images/spatial/heatmap/heatmap_' + imageName)
+    def applyCombination(image, filter1, filter2):
+        output1 = SpatialDomainFilter.applyConvolution(image, filter1)
+        output2 = SpatialDomainFilter.applyConvolution(image, filter2)
+
+        filteredImage = np.hypot(output1, output2)
+
+        filteredImage = rescale_intensity(filteredImage, in_range=(0, 255))
+
+        filteredImage = (filteredImage * 255).astype("uint8")
+
+        return filteredImage
 
     @staticmethod
     def showHistogram(image, spat, imageName):
@@ -105,8 +109,3 @@ class SpatialDomainFilter:
                         [0, 0, 0],
                         [1, 2, 1]),
                         dtype="int")
-
-    @staticmethod
-    def filter5():
-        return np.sqrt(SpatialDomainFilter.filter3() * SpatialDomainFilter.filter3() +
-                       SpatialDomainFilter.filter4() * SpatialDomainFilter.filter4())
