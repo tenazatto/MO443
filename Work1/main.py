@@ -3,6 +3,8 @@ import os
 import time
 
 import cv2
+import matplotlib.pyplot as plt
+import numpy as np
 
 from frequency.frequency_domain import FrequencyDomainFilter
 from spatial.spatial_domain import SpatialDomainFilter
@@ -72,6 +74,20 @@ def generateImage(folderPath, fileName, image):
         os.makedirs(folderPath)
     cv2.imwrite(folderPath + fileName, image)
 
+def showHistogram(image, imageName):
+    n, bins, patches = plt.hist(image.ravel(),256,[0,256])
+    plt.grid(axis='y', alpha=0.75)
+    plt.xlabel('Value')
+    plt.ylabel('Frequency')
+    plt.title('Histogram of ' + imageName)
+    plt.text(23, 45, r'$\mu=15, b=3$')
+    maxfreq = n.max()
+    # Set a clean upper y-axis limit.
+    plt.ylim(top=np.ceil(maxfreq / 10) * 10 if maxfreq % 10 else maxfreq + 10)
+    if not os.path.exists('./result_images/histogram'):
+        os.makedirs('./result_images/histogram')
+    plt.savefig('./result_images/histogram/histogram_' + imageName)
+
 def main():
     args = parser.parse_args()
 
@@ -80,6 +96,15 @@ def main():
     if args.freq_type != None:
         apply_frequency_domain_filter(args.images, args.freq_type, args.freq_radius, args.freq_bandwidth,
                                       args.freq_gen_aux_images, args.show_histogram)
+
+    if (args.spat_filter is None) & (args.freq_type is None) & args.show_histogram:
+        for image in args.images:
+            cvImage = cv2.imread(image, 0)
+
+            imagePaths = image.split('/')
+            imageName = imagePaths[len(imagePaths) - 1]
+            showHistogram(cvImage, imageName)
+
 
 
 if __name__ == '__main__':
