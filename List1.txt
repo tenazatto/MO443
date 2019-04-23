@@ -1,0 +1,83 @@
+1) É possivel equalizar o histograma de uma imagem colorida em cada canal de azul, vermelho e verde, mas isso alteraria as propriedades de cor da imagem. Para manter as propriedades de cor, o ideal seria fazer uma conversão para o modelo HSI (matiz, saturação e intensidade) e depois converter novamente para o padrão RGB.
+
+2) O filtro da média geralmente é utilizado em imagens mais homogêneas e sem muitas bordas, já que tendem a apresentar pouca ou nenhuma alteração dos seus níveis de cinza caso os pixels vizinhos tenham valores próximos e sua suavização tende a afetar mais bordas e pequenos detalhes. Já o filtro da mediana geralmente é utilizado em imagens com imagens muito ruidosas e com muitos detalhes e bordas, uma vez que pixels muito diferentes de seus vizinhos são descartados, eliminando assim ruídos do tipo sal-e-pimenta e afetando menos as bordas em relação ao filtro da média.
+
+3) Porque é um filtro considerado isotrópico, ou seja, o grau de suavização será o mesmo para todas as regiões. A matriz realizada para seu filtro também se assemelha bastante ao filtro da média e faz com que suas características se assemelhem bastante.
+
+4) 0 1 2 3 4 5 6 7 = f(x,y) 0 1 2 3 4 5 6 7 = f'(x,y)
+   7 6 5 4 3 2 1 0          7 1 2 3 3 4 5 0
+   1 0 1 2 3 4 5 6          1 1 1 2 3 3 4 6
+   2 1 0 1 2 3 4 5          2 1 1 1 2 3 4 5
+   3 2 1 0 1 2 3 4          3 2 1 1 1 2 3 4
+   4 3 2 1 0 1 2 3          4 3 2 1 1 1 2 3
+   5 4 3 2 1 0 1 2          5 4 3 2 1 1 1 2
+   6 5 4 3 2 1 0 1          6 5 4 3 2 1 1 1
+   7 6 5 4 3 2 1 0          7 6 5 4 3 2 1 0
+
+5) Um operador de bordas deve detectar características da imagem que representam fronteiras entre duas regiões com níveis de cinza visivelmente distintos, como bordas, linhas, curvas e manchas.
+
+6) A resolução de uma imagem se refere a densidade dos pixels em um determinado espaço, já a densidade de uma imagem se refere ao número de bits necessários para armazenar a cor de um dos pixels da imagem.
+
+7)
+
+8) O gradiente é um vetor que é sempre perpendicular aos locais onde os níveis de cinza sofrem a maior variação. Ao calcular sua magnitude em cada ponto, podemos concluir que um ponto (x, y) é de uma determinada borda se sua magnitude ultrapassar um certo limiar.
+
+9) y = mx + b -> b = y - mx -> p = xcos 0 + ysen0
+b = 3 - m  -> p = cos 0 + 3sen0
+b = 6 - 2m  -> p = 2cos 0 + 6sen0
+b = 12 - 4m  -> p = 4cos 0 + 12sen0
+
+p = cos 0 + 3sen0 = 2cos 0 + 6sen0 -> cos 0 = -3sen 0
+p = pataquada - 0 = zerodinumsei
+y = 3x
+
+10)
+
+11) f(x) = ax + b -> f(0) = 0a + b = 10 -> b = 10 -> f(60) = 60a + 10 = 210 -> 60a = 200 -> a = 10/3 -> y = 10x/3 + 10
+
+12)
+
+13)
+
+14)
+
+15)
+
+16) Pois o filtro Laplaciano é muito sensível a ruídos presentes na imagem. Para ele ser utilizado como detector de bordas, é recomendável que a imagem seja filtrada.
+
+17) Um operador de bordas isotrópico é um operador de bordas invariante a rotação e não diferencia direções. Um exemplo deste operador é o operador Laplaciano.
+
+18) 
+armazena h(0) em aux
+Para i de 1 a 255
+Se aux < h(i)
+zera vetor moda e adiciona i em moda
+armazena h(i) em aux
+Senão se aux = h(i)
+adiciona i em moda
+Fim se
+Fim para
+
+
+19) 
+
+20) Sim. f1 em 1/3 * 1 1 1 e 1/3 * 1 e f2 em 1/4 * 1 2 1 e 1/4 * 1
+                                   1                             2
+                                   1                             1
+
+21) A diferença se aplica à área de aplicação. Enquanto a limiarização global se aplica no histograma da imagem inteira, a limiarização global se aplica a histograma de diferentes regiões determinadas da mesma.
+
+22)
+
+23)
+
+24)
+
+25) a) D = pi*R^2/(2*pi*R)^2 = 1/(4*pi)
+D para um círculo é sempre máximo, pois D = Compacidade^-1, onde na compacidade o valor é mínimo para um círculo. Como nela o valor é mínimo, seu inverso será um valor máximo.
+b) D = L^2/(4L)^2 = L^2/(16*L^2) = 1/16 - Quadrado
+D = L*(L+d)/(2*L+2*(L+d))^2 = (L^2+d*L)/(4*L+2*d)^2 = (L^2+d*L)/(16*L^2+2*d*L+4*d^2)
+Com L = 1, D = (d+1)/(4*d^2+2*d+16)
+Conforme a diferença entre o maior lado e o menor aumenta, o denominador 4*d^2+2*d+16 também aumentará em uma proporção muito maior que o numerador d+1, diminuindo o valor. Na compacidade, esse valor sempre aumenta. Como essa diferença maior lado e o menor não pode ser 0, concluimos que D é sempre menor para um retângulo do que um quadrado.
+
+26) Em um sistema de reconhecimento automático de placas de veículos podem ser usados Descritores de Região utilizando-se as Projeções Horizontal e Vertical de cada placa, ou as Propriedades Topológicas da mesma determinando o número de buracos e componentes conexos de cada caracter.
