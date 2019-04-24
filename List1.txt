@@ -18,7 +18,8 @@
 
 6) A resolução de uma imagem se refere a densidade dos pixels em um determinado espaço, já a densidade de uma imagem se refere ao número de bits necessários para armazenar a cor de um dos pixels da imagem.
 
-7)
+7) a) Está conectado em (i) e em (ii), pois possui adjacência por meio de vizinhança-4 em 3 pixels entre S1 e S2. Como possui adjacência por meio de vizinhança-4, também possui adjacência por meio de vizinhança-8.
+b) 4 componentes conexas com vizinhança-4 e 3 componentes conexas com vizinhança-8.
 
 8) O gradiente é um vetor que é sempre perpendicular aos locais onde os níveis de cinza sofrem a maior variação. Ao calcular sua magnitude em cada ponto, podemos concluir que um ponto (x, y) é de uma determinada borda se sua magnitude ultrapassar um certo limiar.
 
@@ -31,17 +32,22 @@ p = cos 0 + 3sen0 = 2cos 0 + 6sen0 -> cos 0 = -3sen 0
 p = pataquada - 0 = zerodinumsei
 y = 3x
 
-10)
+10) a) A distância D4(p,q) é considerado o menor caminho-4 entre p e q porque, como cada ponto com distância 1 é considerado um pixel de vizinhança-4, a soma das vizinhanças percorridas entre p e q em seu menor caminho será igual sempre a D4(p,q).
+b) Um caminho entre p e q não é único, ele sempre pode ter vizinhanças-4 a mais. Entretanto, outros caminhos sempre terão comprimento maior que D4(p,q).
 
 11) f(x) = ax + b -> f(0) = 0a + b = 10 -> b = 10 -> f(60) = 60a + 10 = 210 -> 60a = 200 -> a = 10/3 -> y = 10x/3 + 10
 
-12)
+12) O valor da distância semi-Euclidiana é sempre maior que os valores das outras distâncias, exceto em 3 casos:
+1-x1 = x2
+2-y1 = y2
+3-x1 = x2 e y1 = y2
+Nesses três valores, o valor das quatro distâncias apresentadas é sempre igual.
 
-13)
+13) A entropia mede a quantidade de informação da imagem. Quanto mais níveis de intensidade de níveis de cinza presentes em uma imagem, maior sua entropia. Quando todos os pixels possuem a mesma intensidade, a entropia é zero. Quando todos os pixels possuem todas as intensidades possíveis na mesma quantidade, sua entropia é a máxima possível.
 
-14)
+14) A adição é utilizada para sobrepor duas imagens, como se fosse uma união entre elas. Já a subtração é utilizada para identificar diferenças entre duas imagens, como se fosse uma intersecção entre as mesmas.
 
-15)
+15) Enquanto a amostragem define quantos pixels serão gerados na digitalização através de uma matriz, a quantização define quantos níveis de cores serão utrilizados para preencher os pixels definidos na amostragem.
 
 16) Pois o filtro Laplaciano é muito sensível a ruídos presentes na imagem. Para ele ser utilizado como detector de bordas, é recomendável que a imagem seja filtrada.
 
@@ -59,7 +65,7 @@ Fim se
 Fim para
 
 
-19) 
+19) a) 20 b) 160/5 = 32
 
 20) Sim. f1 em 1/3 * 1 1 1 e 1/3 * 1 e f2 em 1/4 * 1 2 1 e 1/4 * 1
                                    1                             2
@@ -68,10 +74,29 @@ Fim para
 21) A diferença se aplica à área de aplicação. Enquanto a limiarização global se aplica no histograma da imagem inteira, a limiarização global se aplica a histograma de diferentes regiões determinadas da mesma.
 
 22)
+Começar pelo ponto (x,y) = (0,0)
+Para i de 1 a N
+Se C(i) = 0 adicionar ponto (x,y+1)
+Se C(i) = 1 adicionar ponto (x-1,y)
+Se C(i) = 2 adicionar ponto (x,y-1)
+Se C(i) = 3 adicionar ponto (x+1,y)
+Fim para
+Para i de 0 a N-1 area = area + Px(i)*Py(i+1) - Px(i+1)*Py(i)
+area = abs(area) / 2
 
-23)
+
+
+23) A principal vantagem do código da cadeia é que ele pode ser aplicado a tarefas como cálculo de área e detecção de cantos, e sua principal desvantagem é que ele é sensível a ruído ou imperfeições na borda
 
 24)
+0 0 0 0 1 1 1 1 -> 0 0 0 0 A A A A -> 0 0 0 0 A A A A -> 0 0 0 0 A A A A
+0 0 1 1 1 1 1 1    0 0 1 1 A A A A    0 0 1 1 A A A A    0 0 C c A A A A
+0 0 1 1 1 1 1 1    0 0 1 1 A A A A    0 0 B B A A A A    0 0 B B A A A A
+0 0 1 1 1 1 1 1    0 0 1 1 A A A A    0 0 B B A A A A    0 0 B B A A A A
+0 0 0 0 0 1 1 1    0 0 0 0 0 1 1 1    0 0 0 0 0 1 b b    0 0 0 0 0 Ç b b
+0 0 0 0 0 0 1 1    0 0 0 0 0 0 1 1    0 0 0 0 0 0 b b    0 0 0 0 0 0 b b
+0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0    0 0 0 0 0 0 0 0
 
 25) a) D = pi*R^2/(2*pi*R)^2 = 1/(4*pi)
 D para um círculo é sempre máximo, pois D = Compacidade^-1, onde na compacidade o valor é mínimo para um círculo. Como nela o valor é mínimo, seu inverso será um valor máximo.
