@@ -9,17 +9,17 @@ from dither import Dither
 
 parser = argparse.ArgumentParser(description='MO443A Work 1')
 parser.add_argument('-images', nargs='+', dest='images', required=True)
-parser.add_argument('-tech', type=int, dest='tech')
+parser.add_argument('-dither', type=int, dest='tech')
 parser.add_argument('-change-dir', dest='change_dir', action='store_true')
 
 
 def apply_halftone_dither(images, tech, change_dir):
-    print("Applying spatial domain filter ")
+    ditherName = 'Bayer' if tech == 2 else 'Ten_positions'
+    print("Applying ordered dither - ", ditherName)
     for image in images:
 
         imagePaths = image.split('/')
         imageName = imagePaths[len(imagePaths) - 1].split('.')[0] + changeDirStr(change_dir) + '.pbm'
-        ditherName = 'Bayer' if tech == 2 else 'Normal'
 
         cvImage = cv2.imread(image, 0)
 
