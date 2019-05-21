@@ -25,9 +25,10 @@ def detectText(images, count):
 
         invImage = cv2.bitwise_not(cvImage)
 
+        generateImage(imageFolder, 'step0.pbm', invImage)
+
         print('Applying Step 1')
         strElStep1 = cv2.getStructuringElement(cv2.MORPH_RECT, (100, 1))
-        print(strElStep1)
         cvImageStep1 = cv2.dilate(invImage, strElStep1)
 
         generateImage(imageFolder, 'step1.pbm', cvImageStep1)
@@ -39,7 +40,6 @@ def detectText(images, count):
 
         print('Applying Step 3')
         strElStep3 = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 200))
-        print(strElStep3)
         cvImageStep3 = cv2.dilate(invImage, strElStep3)
 
         generateImage(imageFolder, 'step3.pbm', cvImageStep3)
@@ -56,7 +56,6 @@ def detectText(images, count):
 
         print('Applying Step 6')
         strElStep6 = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 1))
-        print(strElStep6)
         cvImageStep6 = cv2.morphologyEx(cvImageStep5, cv2.MORPH_CLOSE, strElStep6)
 
         generateImage(imageFolder, 'step6.pbm', cvImageStep6)
@@ -73,6 +72,7 @@ def detectText(images, count):
         i = 1
         text = 0
         contoursFiltered = contourFilter(contours, 100, 10)
+        textContours = []
         for c in contoursFiltered:
             x, y, w, h = c[0], c[1], c[2], c[3]
             ratioBlackPixels, ratioTransitions = getStats(cvImageStep7, x, y, w, h, c, i)
@@ -80,10 +80,11 @@ def detectText(images, count):
             cv2.rectangle(cvImageStep9, (x, y), (x + w, y + h), (0, 0, 0), 1)
             print('Applying Step 9')
             txt = str(i)
-            if (ratioBlackPixels > 0.3) & (ratioBlackPixels < 0.9) \
-                & (ratioTransitions > 1.86) & (ratioTransitions < 1.97):
+            if (ratioBlackPixels > 0.3) and (ratioBlackPixels < 0.9) \
+                    and (ratioTransitions > 1.86) and (ratioTransitions < 1.97):
                 print('Text detected')
                 text += 1
+                textContours.append(c)
                 if count:
                     txt = str(text)
                     putTextOnImage(cvImageStep9, txt, text, x, y, w, h, 20)
@@ -98,6 +99,27 @@ def detectText(images, count):
 
             i += 1
 
+        if count:
+            lines = text
+            imageSect = int(len(cvImage) / 2)
+            for i in range(0, len(textContours) - 1):
+                for j in range(i + 1, len(textContours)):
+                    # Don't validate texts from different sections
+                    if (textContours[i][0] <= imageSect and textContours[j][0] > imageSect):
+                        continue
+                    if (textContours[i][0] > imageSect and textContours[j][0] <= imageSect):
+                        continue
+                    # Remove texts in same line from line count
+                    if (textContours[i][1] - textContours[j][1] < 10):
+                        lines -= 1
+
+            for i in range(0, len(textContours)):
+                # Remove header texts from line count
+                if (textContours[i][1] < 50):
+                    lines -= 1
+
+            print('Number of lines:', lines)
+
         generateImage(imageFolder, 'step7.pbm', cvImageStep7)
         generateImage(imageFolder, 'step9.pbm', cvImageStep9)
 
@@ -109,9 +131,10 @@ def detectWord(images, count):
 
         invImage = cv2.bitwise_not(cvImage)
 
+        generateImage(imageFolder, 'step0.pbm', invImage)
+
         print('Applying Step 1')
         strElStep1 = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 1))
-        print(strElStep1)
         cvImageStep1 = cv2.dilate(invImage, strElStep1)
 
         generateImage(imageFolder, 'step1.pbm', cvImageStep1)
@@ -123,7 +146,6 @@ def detectWord(images, count):
 
         print('Applying Step 3')
         strElStep3 = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 60))
-        print(strElStep3)
         cvImageStep3 = cv2.dilate(invImage, strElStep3)
 
         generateImage(imageFolder, 'step3.pbm', cvImageStep3)
@@ -140,7 +162,6 @@ def detectWord(images, count):
 
         print('Applying Step 6')
         strElStep6 = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 1))
-        print(strElStep6)
         cvImageStep6 = cv2.morphologyEx(cvImageStep5, cv2.MORPH_CLOSE, strElStep6)
 
         generateImage(imageFolder, 'step6.pbm', cvImageStep6)
@@ -164,8 +185,8 @@ def detectWord(images, count):
             cv2.rectangle(cvImageStep9, (x, y), (x + w, y + h), (0, 0, 0), 1)
             print('Applying Step 9')
 
-            if (ratioBlackPixels > 0.23) & (ratioBlackPixels < 0.9) \
-                & (ratioTransitions > 1.61) & (ratioTransitions < 2):
+            if (ratioBlackPixels > 0.23) and (ratioBlackPixels < 0.9) \
+                    and (ratioTransitions > 1.61) and (ratioTransitions < 2):
                 print('Word detected')
                 word += 1
                 if count:
