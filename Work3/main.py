@@ -23,50 +23,12 @@ def detectText(images, count):
     for image in images:
         cvImage = cv2.imread(image, 0)
 
-        invImage = cv2.bitwise_not(cvImage)
-
-        generateImage(imageFolder, 'step0.pbm', invImage)
-
-        print('Applying Step 1')
         strElStep1 = cv2.getStructuringElement(cv2.MORPH_RECT, (100, 1))
-        cvImageStep1 = cv2.dilate(invImage, strElStep1)
-
-        generateImage(imageFolder, 'step1.pbm', cvImageStep1)
-
-        print('Applying Step 2')
-        cvImageStep2 = cv2.erode(cvImageStep1, strElStep1)
-
-        generateImage(imageFolder, 'step2.pbm', cvImageStep2)
-
-        print('Applying Step 3')
         strElStep3 = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 200))
-        cvImageStep3 = cv2.dilate(invImage, strElStep3)
-
-        generateImage(imageFolder, 'step3.pbm', cvImageStep3)
-
-        print('Applying Step 4')
-        cvImageStep4 = cv2.erode(cvImageStep3, strElStep3)
-
-        generateImage(imageFolder, 'step4.pbm', cvImageStep4)
-
-        print('Applying Step 5')
-        cvImageStep5 = cv2.bitwise_and(cvImageStep2, cvImageStep4)
-
-        generateImage(imageFolder, 'step5.pbm', cvImageStep5)
-
-        print('Applying Step 6')
         strElStep6 = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 1))
-        cvImageStep6 = cv2.morphologyEx(cvImageStep5, cv2.MORPH_CLOSE, strElStep6)
 
-        generateImage(imageFolder, 'step6.pbm', cvImageStep6)
-
-        cvImageStep6 = cv2.bitwise_not(cvImageStep6)
-        generateImage(imageFolder, 'step6-2.pbm', cvImageStep6)
-
-        print('Applying Step 7')
-        contours, hierarchy = cv2.findContours(cvImageStep6, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        cvImageStep7 = cvImageStep6
-        cvImageStep9 = cvImage
+        cvImageStep6, cvImageStep7, cvImageStep9, contours = \
+            applyMorphology(cvImage, imageFolder, strElStep1, strElStep3, strElStep6)
 
         print('Applying Step 8')
         i = 1
@@ -101,7 +63,7 @@ def detectText(images, count):
 
         if count:
             lines = text
-            imageSect = int(len(cvImage) / 2)
+            imageSect = int(len(cvImage[0]) / 2)
             for i in range(0, len(textContours) - 1):
                 for j in range(i + 1, len(textContours)):
                     # Don't validate texts from different sections
@@ -129,50 +91,12 @@ def detectWord(images, count):
     for image in images:
         cvImage = cv2.imread(image, 0)
 
-        invImage = cv2.bitwise_not(cvImage)
-
-        generateImage(imageFolder, 'step0.pbm', invImage)
-
-        print('Applying Step 1')
         strElStep1 = cv2.getStructuringElement(cv2.MORPH_RECT, (30, 1))
-        cvImageStep1 = cv2.dilate(invImage, strElStep1)
-
-        generateImage(imageFolder, 'step1.pbm', cvImageStep1)
-
-        print('Applying Step 2')
-        cvImageStep2 = cv2.erode(cvImageStep1, strElStep1)
-
-        generateImage(imageFolder, 'step2.pbm', cvImageStep2)
-
-        print('Applying Step 3')
         strElStep3 = cv2.getStructuringElement(cv2.MORPH_RECT, (1, 60))
-        cvImageStep3 = cv2.dilate(invImage, strElStep3)
-
-        generateImage(imageFolder, 'step3.pbm', cvImageStep3)
-
-        print('Applying Step 4')
-        cvImageStep4 = cv2.erode(cvImageStep3, strElStep3)
-
-        generateImage(imageFolder, 'step4.pbm', cvImageStep4)
-
-        print('Applying Step 5')
-        cvImageStep5 = cv2.bitwise_and(cvImageStep2, cvImageStep4)
-
-        generateImage(imageFolder, 'step5.pbm', cvImageStep5)
-
-        print('Applying Step 6')
         strElStep6 = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 1))
-        cvImageStep6 = cv2.morphologyEx(cvImageStep5, cv2.MORPH_CLOSE, strElStep6)
 
-        generateImage(imageFolder, 'step6.pbm', cvImageStep6)
-
-        cvImageStep6 = cv2.bitwise_not(cvImageStep6)
-        generateImage(imageFolder, 'step6-2.pbm', cvImageStep6)
-
-        print('Applying Step 7')
-        contours, hierarchy = cv2.findContours(cvImageStep6, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        cvImageStep7 = cvImageStep6
-        cvImageStep9 = cvImage
+        cvImageStep6, cvImageStep7, cvImageStep9, contours = \
+            applyMorphology(cvImage, imageFolder, strElStep1, strElStep3, strElStep6)
 
         print('Applying Step 8')
         i = 1
@@ -188,8 +112,8 @@ def detectWord(images, count):
             if (ratioBlackPixels > 0.23) and (ratioBlackPixels < 0.9) \
                     and (ratioTransitions > 1.61) and (ratioTransitions < 2):
                 print('Word detected')
-                word += 1
                 if count:
+                    word += 1
                     txt = str(word)
                     putTextOnImage(cvImageStep9, txt, word, x, y, w, h, 20)
                 else:
@@ -203,9 +127,56 @@ def detectWord(images, count):
 
             i += 1
 
+        if count:
+            print('Number of words:', word)
+
         generateImage(imageFolder, 'step7.pbm', cvImageStep7)
         generateImage(imageFolder, 'step9.pbm', cvImageStep9)
-        print('Number of words:', word)
+
+def applyMorphology(cvImage, imageFolder, strElDilateErode1, strElDilateErode2, strElClose):
+    invImage = cv2.bitwise_not(cvImage)
+
+    generateImage(imageFolder, 'step0.pbm', invImage)
+
+    print('Applying Step 1')
+    cvImageStep1 = cv2.dilate(invImage, strElDilateErode1)
+
+    generateImage(imageFolder, 'step1.pbm', cvImageStep1)
+
+    print('Applying Step 2')
+    cvImageStep2 = cv2.erode(cvImageStep1, strElDilateErode1)
+
+    generateImage(imageFolder, 'step2.pbm', cvImageStep2)
+
+    print('Applying Step 3')
+    cvImageStep3 = cv2.dilate(invImage, strElDilateErode2)
+
+    generateImage(imageFolder, 'step3.pbm', cvImageStep3)
+
+    print('Applying Step 4')
+    cvImageStep4 = cv2.erode(cvImageStep3, strElDilateErode2)
+
+    generateImage(imageFolder, 'step4.pbm', cvImageStep4)
+
+    print('Applying Step 5')
+    cvImageStep5 = cv2.bitwise_and(cvImageStep2, cvImageStep4)
+
+    generateImage(imageFolder, 'step5.pbm', cvImageStep5)
+
+    print('Applying Step 6')
+    cvImageStep6 = cv2.morphologyEx(cvImageStep5, cv2.MORPH_CLOSE, strElClose)
+
+    generateImage(imageFolder, 'step6.pbm', cvImageStep6)
+
+    cvImageStep6 = cv2.bitwise_not(cvImageStep6)
+    generateImage(imageFolder, 'step6-2.pbm', cvImageStep6)
+
+    print('Applying Step 7')
+    contours, hierarchy = cv2.findContours(cvImageStep6, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    cvImageStep7 = cvImageStep6
+    cvImageStep9 = cvImage
+
+    return cvImageStep6, cvImageStep7, cvImageStep9, contours
 
 def generateImage(folderPath, fileName, image):
     if not os.path.exists(folderPath):
@@ -259,11 +230,17 @@ def getStats(image, x, y, w, h, c, i):
 
 def putTextOnImage(image, text, counter, x, y, w, h, adjust):
     if counter < 10:
-        cv2.putText(image, text, (x + w - adjust, y + h + 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0))
+        adjustx = x + w - adjust
     elif counter < 100:
-        cv2.putText(image, text, (x + w - 2 * adjust, y + h + 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0))
+        adjustx = x + w - 2 * adjust
     else:
-        cv2.putText(image, text, (x + w - 3 * adjust, y + h + 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0))
+        adjustx = x + w - 3 * adjust
+
+    adjustx = 0 if adjustx < 0 else adjustx
+    adjusty = y + h + 25
+    adjusty = len(image) - h if adjusty + h > len(image) else adjusty
+
+    cv2.putText(image, text, (adjustx, adjusty), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0))
 
 if __name__ == '__main__':
     main()
