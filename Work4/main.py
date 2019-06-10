@@ -90,7 +90,7 @@ def matchKeypoints(kpsA, kpsB, featuresA, featuresB,
             matches.append((m[0].trainIdx, m[0].queryIdx))
             matches1to2.append(m[0])
 
-    if len(matches) > 4:
+    if len(matches) >= 4:
         ptsA = np.float32([kpsA[i].pt for (_, i) in matches])
         ptsB = np.float32([kpsB[i].pt for (i, _) in matches])
 
